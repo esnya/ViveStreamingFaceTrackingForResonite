@@ -1,11 +1,19 @@
-# ViveStreamingFaceTrackingModule
-Streaming facial tracking data from VIVE Focus Vision, VIVE XR Elite or VIVE Focus 3 to VRCFT's Unified Expressions.
-# Instruction
-1. Download the module from https://github.com/ViveSoftware/ViveStreamingFaceTrackingModule/releases
-2. Install the module to VRCFT
-3. Start streaming, VRChat and VRCFT   
+# EsnyaResoniteModTemplate
 
-Note:
-* If avatar's face expression doesn't work, try Reset Config in VRChat in Dial Menu > OSC > Reset Config
-* Minimum required version: VIVE Business Streaming v1.15.5 or VIVE Hub v1.6.6.
-* Make sure to enable 'Streaming avatar data to VRChat via OSC' in VIVE Hub Console.
+A [ResoniteModLoader](https://github.com/resonite-modding-group/ResoniteModLoader) mod for [Resonite](https://resonite.com/).
+
+
+## Installation
+
+1. Install the [ResoniteModLoader](https://github.com/resonite-modding-group/ResoniteModLoader).
+1. Place the [EsnyaResoniteModTemplate.dll](https://github.com/esnya/EsnyaResoniteModTemplate/releases/latest/download/EsnyaResoniteModTemplate.dll) into your `rml_mods` folder. This folder should be located at `C:\Program Files (x86)\Steam\steamapps\common\Resonite\rml_mods` for a standard installation. You can create it if it's missing, or if you start the game once with the ResoniteModLoader installed it will create this folder for you.
+1. Launch the game. If you want to check that the mod is working you can check your Resonite logs.
+
+
+## Development Requirements
+
+For development, you will need the [ResoniteHotReloadLib](https://github.com/Nytra/ResoniteHotReloadLib) to be able to hot reload your mod with DEBUG build.
+
+
+## Acknowledgements
+This project includes components from [ViveStreamingFaceTrackingModule](https://github.com/ViveSoftware/ViveStreamingFaceTrackingModule) licensed under Apache License 2.0.
