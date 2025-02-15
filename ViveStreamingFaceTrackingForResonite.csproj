@@ -28,7 +28,7 @@
 		<RepositoryUrl>https://github.com/esnya/ViveStreamingFaceTrackingForResonite</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>Resonite,Mod,ResoniteModLoader,Vive,FaceTracking</PackageTags>
-		<Version>0.1.0.0</Version>
+		<Version>0.1.0.1</Version>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 
