@@ -69,6 +69,8 @@ jobs:
 
   release:
     if: startsWith(github.ref, 'refs/tags/v') || needs.vtag.outputs.tagged
+    permissions:
+      contents: write
     needs:
       - vtag
       - build
