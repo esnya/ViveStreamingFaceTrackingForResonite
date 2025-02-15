@@ -44,7 +44,7 @@ namespace ViveStreamingFaceTrackingForResonite
 
         public void UpdateInputs(bool connected, ref string? newData)
         {
-            IsDeviceActive = LeftEye.IsDeviceActive = RightEye.IsDeviceActive = CombinedEye.IsDeviceActive = connected;
+            IsEyeTrackingActive = IsDeviceActive = LeftEye.IsDeviceActive = RightEye.IsDeviceActive = CombinedEye.IsDeviceActive = connected;
             SetTracking(connected && Input.VR_Active);
 
             if (newData is null || !IsDeviceActive || !IsTracking)
