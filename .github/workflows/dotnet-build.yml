@@ -58,7 +58,7 @@ jobs:
     - name: Build
       uses: esnya/build-rml-mod@v1
       with:
-        project: ${{ github.workspace }}/${{ env.project }}
+        project: ${{ github.workspace }}
         steam-login: ${{ secrets.STEAMLOGIN }}
 
     - name: Upload build artifacts
