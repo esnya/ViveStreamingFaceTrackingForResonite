@@ -13,12 +13,9 @@ namespace ViveStreamingFaceTrackingForResonite
         private const string VS_SERVER_STATE = "2105";
         private const string EYE_DATA = "5001";
         private const string LIP_DATA = "5002";
-        private InputInterface? inputInterface;
         private ViveStreamingEyes? eyes;
         private ViveStreamingMouth? mouth;
 
-        //private string? settings;
-        //private string? serverVersion;
         private static string? hmdName;
         private static bool connected;
         private static string? eyeData;
@@ -39,6 +36,7 @@ namespace ViveStreamingFaceTrackingForResonite
                 {
                     if (!VS_PC_SDK.VS_StartFaceTracking())
                     {
+                        ResoniteMod.Error("Failed to start face tracking");
                         throw new InvalidOperationException("Failed to start face tracking");
                     }
                 }
@@ -74,12 +72,18 @@ namespace ViveStreamingFaceTrackingForResonite
 
         public void CollectDeviceInfos(DataTreeList list)
         {
+            if (list is null)
+            {
+                return;
+            }
+
             if (eyes is not null)
             {
                 var dict = new DataTreeDictionary();
                 dict.Add("Name", "Vive Streaming Face Tracker");
                 dict.Add("Type", "Eye Tracking");
                 dict.Add("Model", hmdName ?? "Unknown");
+                list.Add(dict);
             }
 
             if (mouth is not null)
@@ -88,14 +92,14 @@ namespace ViveStreamingFaceTrackingForResonite
                 dict.Add("Name", "Vive Streaming Face Tracker");
                 dict.Add("Type", "Mouth Tracking");
                 dict.Add("Model", hmdName ?? "Unknown");
+                list.Add(dict);
             }
         }
 
         public void RegisterInputs(InputInterface inputInterface)
         {
-            this.inputInterface = inputInterface;
-            eyes = new ViveStreamingEyes(inputInterface, "Vive Streaming Eyes", true);
-            mouth = new ViveStreamingMouth(inputInterface, "Vive Streaming Mouth");
+            eyes = new ViveStreamingEyes(inputInterface);
+            mouth = new ViveStreamingMouth(inputInterface);
         }
 
         private static void OnStatusUpdate(string status, string value)
@@ -113,7 +117,6 @@ namespace ViveStreamingFaceTrackingForResonite
                     break;
 
                 case VS_SERVER_VERSION:
-                    //serverVersion = value;
                     ResoniteMod.Msg($"Vive Streaming Server v{value} connected.");
                     break;
                 case HMD_NAME:
@@ -121,39 +124,41 @@ namespace ViveStreamingFaceTrackingForResonite
                     ResoniteMod.Msg($"HMD Name: {value}");
                     break;
                 case VS_SERVER_STATE:
-                    if (int.TryParse(value, out var state))
-                    {
-                        switch (state)
-                        {
-                            case 0:
-                                if (!connected)
-                                {
-                                    ResoniteMod.Msg("HMD connected");
-                                    connected = true;
-                                }
-                                break;
-                            case 2:
-                                if (connected)
-                                {
-                                    ResoniteMod.Msg("HMD disconnected");
-                                    connected = false;
-                                }
-                                break;
-                            default:
-                                // ResoniteMod.Warn($"Unknown VS Server state: {state}");
-                                break;
-                        }
-                    }
+                    HandleServerState(value);
                     break;
                 default:
-                    //ResoniteMod.Warn($"Unknown status: {status} {value}");
                     break;
+            }
+        }
+
+        private static void HandleServerState(string value)
+        {
+            if (int.TryParse(value, out var state))
+            {
+                switch (state)
+                {
+                    case 0:
+                        if (!connected)
+                        {
+                            ResoniteMod.Msg("HMD connected");
+                            connected = true;
+                        }
+                        break;
+                    case 2:
+                        if (connected)
+                        {
+                            ResoniteMod.Msg("HMD disconnected");
+                            connected = false;
+                        }
+                        break;
+                    default:
+                        break;
+                }
             }
         }
 
         private static void OnSettingChange(string settings)
         {
-            //this.settings = settings;
             ResoniteMod.Debug(settings);
         }
 
@@ -164,34 +169,8 @@ namespace ViveStreamingFaceTrackingForResonite
 
         public void UpdateInputs(float deltaTime)
         {
-            if (eyes is not null)
-            {
-                eyes.IsDeviceActive = connected;
-                eyes.IsEyeTrackingActive = inputInterface?.VR_Active ?? false;
-
-                if (connected && eyes.IsEyeTrackingActive)
-                {
-
-                    if (eyeData is not null)
-                    {
-                        eyes.UpdateStatus(eyeData);
-                    }
-                    eyes.UpdateInputs();
-                }
-            }
-
-            if (mouth is not null)
-            {
-                mouth.IsDeviceActive = connected;
-                if (mouth.IsTracking = inputInterface?.VR_Active ?? false)
-                {
-                    if (lipData is not null)
-                    {
-                        mouth.UpdateStatus(lipData);
-                    }
-                    mouth.UpdateInputs();
-                }
-            }
+            eyes?.UpdateInputs(connected, ref eyeData);
+            mouth?.UpdateInputs(connected, ref lipData);
         }
 
         public void Dispose()

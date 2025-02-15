@@ -1,4 +1,5 @@
-﻿using Elements.Core;
+﻿using System;
+using Elements.Core;
 using FrooxEngine;
 using ViveStreamingFaceTrackingModule;
 
@@ -6,8 +7,6 @@ namespace ViveStreamingFaceTrackingForResonite
 {
     internal sealed class ViveStreamingEyes : Eyes
     {
-        private string? newData;
-
         private readonly struct EyeData
         {
             private readonly float[] data;
@@ -20,136 +19,100 @@ namespace ViveStreamingFaceTrackingForResonite
 
             public float this[FaceData.EyeDataIndex index] => data[(int)index];
 
-            public bool Update(string status)
+            public void Update(string status)
             {
-                var active = false;
                 var parts = status.Split(',');
                 for (int i = 0; i < parts.Length && i < data.Length; i++)
                 {
                     if (float.TryParse(parts[i], out float value))
                     {
                         data[i] = value;
-                        active = true;
                     }
                     else
                     {
                         data[i] = float.NaN;
                     }
                 }
-                return active;
             }
         }
 
         private readonly EyeData eyeData = new();
 
-        public ViveStreamingEyes(InputInterface input, string name, bool supportsPupilTracking) : base(input, name, supportsPupilTracking)
+        public ViveStreamingEyes(InputInterface input) : base(input, "Vive Streaming Eye Tracking", true)
         {
         }
 
-        public void UpdateStatus(string value)
+        public void UpdateInputs(bool connected, ref string? newData)
         {
-            newData = value;
-        }
+            IsDeviceActive = LeftEye.IsDeviceActive = RightEye.IsDeviceActive = CombinedEye.IsDeviceActive = connected;
+            SetTracking(connected && Input.VR_Active);
 
-        public void UpdateInputs()
-        {
-            SetTracking(LeftEye.IsDeviceActive = RightEye.IsDeviceActive = CombinedEye.IsDeviceActive = IsDeviceActive);
-
-            if (newData is null)
+            if (newData is null || !IsDeviceActive || !IsTracking)
             {
                 return;
             }
+
             eyeData.Update(newData);
             newData = null;
 
-            var v = new float3(
-                eyeData[FaceData.EyeDataIndex.LEFT_EYE_DIRECTION_X],
-                eyeData[FaceData.EyeDataIndex.LEFT_EYE_DIRECTION_Y],
-                eyeData[FaceData.EyeDataIndex.LEFT_EYE_DIRECTION_Z]
-            ).Normalized;
-            if (!v.IsNaN && !v.Approximately(float3.Zero, 0.001f))
-            {
-                LeftEye.UpdateWithDirection(v);
-            }
+            UpdateEyeDirection(LeftEye, FaceData.EyeDataIndex.LEFT_EYE_DIRECTION_X, FaceData.EyeDataIndex.LEFT_EYE_DIRECTION_Y, FaceData.EyeDataIndex.LEFT_EYE_DIRECTION_Z);
+            UpdateEyeDirection(RightEye, FaceData.EyeDataIndex.RIGHT_EYE_DIRECTION_X, FaceData.EyeDataIndex.RIGHT_EYE_DIRECTION_Y, FaceData.EyeDataIndex.RIGHT_EYE_DIRECTION_Z);
+            UpdateEyeDirection(CombinedEye, FaceData.EyeDataIndex.COMBINE_EYE_DIRECTION_X, FaceData.EyeDataIndex.COMBINE_EYE_DIRECTION_Y, FaceData.EyeDataIndex.COMBINE_EYE_DIRECTION_Z);
 
-            v = new float3(
-                eyeData[FaceData.EyeDataIndex.RIGHT_EYE_DIRECTION_X],
-                eyeData[FaceData.EyeDataIndex.RIGHT_EYE_DIRECTION_Y],
-                eyeData[FaceData.EyeDataIndex.RIGHT_EYE_DIRECTION_Z]
-            ).Normalized;
-            if (!v.IsNaN && !v.Approximately(float3.Zero, 0.001f))
-            {
-                RightEye.UpdateWithDirection(v);
-            }
+            UpdateEyeParameter(LeftEye, FaceData.EyeDataIndex.LEFT_EYE_OPENNESS, FaceData.EyeDataIndex.LEFT_BLINK, (eye, value) => eye.Openness = value);
+            UpdateEyeParameter(RightEye, FaceData.EyeDataIndex.RIGHT_EYE_OPENNESS, FaceData.EyeDataIndex.RIGHT_BLINK, (eye, value) => eye.Openness = value);
 
-            v = new float3(
-                eyeData[FaceData.EyeDataIndex.COMBINE_EYE_DIRECTION_X],
-                eyeData[FaceData.EyeDataIndex.COMBINE_EYE_DIRECTION_Y],
-                eyeData[FaceData.EyeDataIndex.COMBINE_EYE_DIRECTION_Z]
-            ).Normalized;
-            if (!v.IsNaN && !v.Approximately(float3.Zero, 0.001f))
-            {
-                CombinedEye.UpdateWithDirection(v);
-            }
+            UpdateEyeParameter(LeftEye, FaceData.EyeDataIndex.LEFT_WIDE, (eye, value) => eye.Widen = value);
+            UpdateEyeParameter(RightEye, FaceData.EyeDataIndex.RIGHT_WIDE, (eye, value) => eye.Widen = value);
 
-            var f = eyeData[FaceData.EyeDataIndex.LEFT_EYE_OPENNESS] - eyeData[FaceData.EyeDataIndex.LEFT_BLINK];
-            if (!float.IsNaN(f))
-            {
-                LeftEye.Openness = MathX.Clamp01(f);
-            }
+            UpdateEyeParameter(LeftEye, FaceData.EyeDataIndex.LEFT_SQUEEZE, (eye, value) => eye.Squeeze = value);
+            UpdateEyeParameter(RightEye, FaceData.EyeDataIndex.RIGHT_SQUEEZE, (eye, value) => eye.Squeeze = value);
 
-            f = eyeData[FaceData.EyeDataIndex.RIGHT_EYE_OPENNESS] - eyeData[FaceData.EyeDataIndex.RIGHT_BLINK];
-            if (!float.IsNaN(f))
-            {
-                RightEye.Openness = MathX.Clamp01(f);
-            }
+            UpdateEyeParameter(LeftEye, FaceData.EyeDataIndex.LEFT_PUPIL_DIAMETER, (eye, value) => eye.PupilDiameter = value * 0.001f);
+            UpdateEyeParameter(RightEye, FaceData.EyeDataIndex.RIGHT_PUPIL_DIAMETER, (eye, value) => eye.PupilDiameter = value * 0.001f);
 
-            f = eyeData[FaceData.EyeDataIndex.LEFT_WIDE];
-            if (!float.IsNaN(f))
+            var timestamp = eyeData[FaceData.EyeDataIndex.TIMESTAMP];
+            if (!float.IsNaN(timestamp))
             {
-                LeftEye.Widen = f;
-            }
-
-            f = eyeData[FaceData.EyeDataIndex.RIGHT_WIDE];
-            if (!float.IsNaN(f))
-            {
-                RightEye.Widen = f;
-            }
-
-            f = eyeData[FaceData.EyeDataIndex.LEFT_SQUEEZE];
-            if (!float.IsNaN(f))
-            {
-                LeftEye.Squeeze = f;
-            }
-
-            f = eyeData[FaceData.EyeDataIndex.RIGHT_SQUEEZE];
-            if (!float.IsNaN(f))
-            {
-                RightEye.Squeeze = f;
-            }
-
-            f = eyeData[FaceData.EyeDataIndex.LEFT_PUPIL_DIAMETER];
-            if (!float.IsNaN(f))
-            {
-                LeftEye.PupilDiameter = f * 0.001f;
-            }
-
-            f = eyeData[FaceData.EyeDataIndex.RIGHT_PUPIL_DIAMETER];
-            if (!float.IsNaN(f))
-            {
-                RightEye.PupilDiameter = f * 0.001f;
-            }
-
-            f = eyeData[FaceData.EyeDataIndex.TIMESTAMP];
-            if (!float.IsNaN(f))
-            {
-                Timestamp = f * 0.001f;
+                Timestamp = timestamp * 0.001f;
             }
 
             CombinedEye.Openness = (LeftEye.Openness + RightEye.Openness) * 0.5f;
             CombinedEye.PupilDiameter = (LeftEye.PupilDiameter + RightEye.PupilDiameter) * 0.5f;
             ComputeCombinedEyeParameters();
             FinishUpdate();
+        }
+
+        private void UpdateEyeDirection(Eye eye, FaceData.EyeDataIndex xIndex, FaceData.EyeDataIndex yIndex, FaceData.EyeDataIndex zIndex)
+        {
+            var direction = new float3(
+                eyeData[xIndex],
+                eyeData[yIndex],
+                eyeData[zIndex]
+            ).Normalized;
+
+            if (!direction.IsNaN && !direction.Approximately(float3.Zero, 0.001f))
+            {
+                eye.UpdateWithDirection(direction);
+            }
+        }
+
+        private void UpdateEyeParameter(Eye eye, FaceData.EyeDataIndex index, Action<Eye, float> updateAction)
+        {
+            var value = eyeData[index];
+            if (!float.IsNaN(value))
+            {
+                updateAction(eye, value);
+            }
+        }
+
+        private void UpdateEyeParameter(Eye eye, FaceData.EyeDataIndex index, FaceData.EyeDataIndex subtractIndex, Action<Eye, float> updateAction)
+        {
+            var value = eyeData[index] - eyeData[subtractIndex];
+            if (!float.IsNaN(value))
+            {
+                updateAction(eye, MathX.Clamp01(value));
+            }
         }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Reflection;
 
@@ -24,52 +25,54 @@ namespace ViveStreamingFaceTrackingForResonite
         public override string Link => ModAssembly.GetCustomAttributes<AssemblyMetadataAttribute>().First(meta => meta.Key == "RepositoryUrl").Value;
 
         private static ModConfiguration? config;
-        private static ViveStreamingFaceTrackingDriver? driver;
+        private static readonly ViveStreamingFaceTrackingDriver driver = new();
         [AutoRegisterConfigKey]
         private static readonly ModConfigurationKey<bool> enabledkey = new("Enabled", "Enable Mod", () => true);
 
         public override void OnEngineInit()
         {
-
 #if DEBUG
             HotReloader.RegisterForHotReload(this);
 #endif
 
             Engine.Current.RunPostInit(() =>
             {
-                var d = Init(this);
-                Engine.Current.InputInterface.RegisterInputDriver(d);
+#pragma warning disable CA1031
+                try
+                {
+                    Init(this);
+                    Engine.Current.InputInterface.RegisterInputDriver(driver);
+                }
+                catch (Exception e)
+                {
+                    Error(e);
+                }
+#pragma warning restore CA1031z
             });
         }
 
-        private static ViveStreamingFaceTrackingDriver Init(ResoniteMod modInstance)
+        private static void Init(ResoniteMod modInstance)
         {
             config = modInstance?.GetConfiguration();
 
-            driver?.Dispose();
-
-            driver = new ViveStreamingFaceTrackingDriver
-            {
-                Active = config?.GetValue(enabledkey) ?? true
-            };
+            driver.Active = config?.GetValue(enabledkey) ?? true;
 
             enabledkey.OnChanged += (_) =>
             {
                 driver.Active = config?.GetValue(enabledkey) ?? true;
             };
-            return driver;
         }
 
 #if DEBUG
         public static void BeforeHotReload()
         {
-            driver?.Dispose();
+            driver.Dispose();
         }
 
         public static void OnHotReload(ResoniteMod modInstance)
         {
-            var d = Init(modInstance);
-            Engine.Current.InputInterface.RegisterInputDriver(d);
+            Init(modInstance);
+            Engine.Current.InputInterface.RegisterInputDriver(driver);
         }
 #endif
     }
