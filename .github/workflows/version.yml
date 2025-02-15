@@ -7,6 +7,9 @@ on:
         description: 'Version to release "MAJOR.MINOR.PATCH.REVISION"'
         required: true
 
+env:
+  project: ViveStreamingFaceTrackingForResonite
+
 jobs:
   version:
     permissions:
@@ -19,13 +22,12 @@ jobs:
         - name: Retrieve previous version from csproj
           id: get_version
           run: |
-            FILE=$(find . -name "*.csproj" | head -n 1)
-            VERSION=$(grep -oPm1 "(?<=<Version>)[^<]+" $FILE)
+            VERSION=$(grep -oPm1 "(?<=<Version>)[^<]+" ${{ env.project }}.csproj)
             echo "previousVersion=$VERSION" >> $GITHUB_OUTPUT
 
         - name: Set version in csproj
           run: |
-            FILE=$(find . -name "*.csproj" | head -n 1)
+            FILE=${{ env.project }}.csproj
             sed -i "s/>${{ steps.get_version.outputs.previousVersion }}/>${{ github.event.inputs.version }}/" $FILE
 
         - name: Commit changes
@@ -38,6 +40,7 @@ jobs:
         - name: Push changes
           run: |
             git push
+            git push --tags
 
   release:
     needs: version
