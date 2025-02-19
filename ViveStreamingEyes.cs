@@ -88,7 +88,7 @@ namespace ViveStreamingFaceTrackingForResonite
             var direction = new float3(
                 eyeData[xIndex],
                 eyeData[yIndex],
-                eyeData[zIndex]
+                -eyeData[zIndex]
             ).Normalized;
 
             if (!direction.IsNaN && !direction.Approximately(float3.Zero, 0.001f))
