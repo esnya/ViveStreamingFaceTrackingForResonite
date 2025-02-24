@@ -21,38 +21,9 @@ namespace ViveStreamingFaceTrackingForResonite
         private static string? eyeData;
         private static string? lipData;
 
-        private bool _active;
-        public bool Active
-        {
-            set
-            {
-                if (_active == value)
-                {
-                    return;
-                }
+        private bool _tracking;
+        public bool active;
 
-                _active = value;
-                if (value)
-                {
-                    if (!VS_PC_SDK.VS_StartFaceTracking())
-                    {
-                        ResoniteMod.Error("Failed to start face tracking");
-                        throw new InvalidOperationException("Failed to start face tracking");
-                    }
-                }
-                else
-                {
-                    if (!VS_PC_SDK.VS_StopFaceTracking())
-                    {
-                        throw new InvalidOperationException("Failed to stop face tracking");
-                    }
-                }
-            }
-            get
-            {
-                return _active;
-            }
-        }
         public ViveStreamingFaceTrackingDriver()
         {
             ResoniteMod.Debug($"Initializing Vive Streaming Face Tracking");
@@ -169,13 +140,38 @@ namespace ViveStreamingFaceTrackingForResonite
 
         public void UpdateInputs(float deltaTime)
         {
+            if (connected && !_tracking && active)
+            {
+                if (!VS_PC_SDK.VS_StartFaceTracking())
+                {
+                    ResoniteMod.Error("Failed to start face tracking");
+                    throw new InvalidOperationException("Failed to start face tracking");
+                }
+                _tracking = true;
+            }
+
+            if (connected && _tracking && !active)
+            {
+                if (!VS_PC_SDK.VS_StopFaceTracking())
+                {
+                    ResoniteMod.Error("Failed to stop face tracking");
+                    throw new InvalidOperationException("Failed to stop face tracking");
+                }
+                _tracking = false;
+            }
+
+            if (!connected)
+            {
+                _tracking = false;
+            }
+
             eyes?.UpdateInputs(connected, ref eyeData);
             mouth?.UpdateInputs(connected, ref lipData);
         }
 
         public void Dispose()
         {
-            Active = false;
+            active = false;
 
             var result = VS_PC_SDK.VS_Release();
             if (result != 0)

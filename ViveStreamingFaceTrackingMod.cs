@@ -1,10 +1,9 @@
 using System;
 using System.Linq;
 using System.Reflection;
-
 using Elements.Core;
-using ResoniteModLoader;
 using FrooxEngine;
+using ResoniteModLoader;
 
 
 
@@ -55,11 +54,11 @@ namespace ViveStreamingFaceTrackingForResonite
         {
             config = modInstance?.GetConfiguration();
 
-            driver.Active = config?.GetValue(enabledkey) ?? true;
+            driver.active = config?.GetValue(enabledkey) ?? true;
 
             enabledkey.OnChanged += (_) =>
             {
-                driver.Active = config?.GetValue(enabledkey) ?? true;
+                driver.active = config?.GetValue(enabledkey) ?? true;
             };
         }
 
