@@ -36,21 +36,32 @@ namespace ViveStreamingFaceTrackingForResonite
             }
         }
 
+        private float _timeSinceLastValidEyeData = float.MaxValue;
         private readonly EyeData eyeData = new();
 
         public ViveStreamingEyes(InputInterface input) : base(input, "Vive Streaming Eye Tracking", true)
         {
         }
 
-        public void UpdateInputs(bool connected, ref string? newData)
+        public void UpdateInputs(bool connected, ref string? newData, float deltaTime)
         {
-            IsEyeTrackingActive = IsDeviceActive = LeftEye.IsDeviceActive = RightEye.IsDeviceActive = CombinedEye.IsDeviceActive = connected;
-            SetTracking(connected && Input.VR_Active);
+            //IsDeviceActive = LeftEye.IsDeviceActive = RightEye.IsDeviceActive = CombinedEye.IsDeviceActive = connected;
+            IsEyeTrackingActive = connected && Input.VR_Active;
 
-            if (newData is null || !IsDeviceActive || !IsTracking)
+            _timeSinceLastValidEyeData += deltaTime;
+
+            if (newData is null)
             {
+                if (_timeSinceLastValidEyeData > 0.2f)
+                {
+                    SetTracking(false);
+                }
+
                 return;
             }
+
+            SetTracking(true);
+            _timeSinceLastValidEyeData = 0f;
 
             eyeData.Update(newData);
             newData = null;

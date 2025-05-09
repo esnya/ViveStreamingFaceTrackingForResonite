@@ -140,6 +140,13 @@ namespace ViveStreamingFaceTrackingForResonite
 
         public void UpdateInputs(float deltaTime)
         {
+
+            if (!connected && _tracking)
+            {
+                VS_PC_SDK.VS_StopFaceTracking();
+                _tracking = false;
+            }
+
             if (connected && !_tracking && active)
             {
                 if (!VS_PC_SDK.VS_StartFaceTracking())
@@ -165,7 +172,7 @@ namespace ViveStreamingFaceTrackingForResonite
                 _tracking = false;
             }
 
-            eyes?.UpdateInputs(connected, ref eyeData);
+            eyes?.UpdateInputs(connected, ref eyeData, deltaTime);
             mouth?.UpdateInputs(connected, ref lipData);
         }
 
