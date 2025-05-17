@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Elements.Core;
 using FrooxEngine;
 using ViveStreamingFaceTrackingModule;
@@ -14,7 +14,7 @@ namespace ViveStreamingFaceTrackingForResonite
             public MouthData()
             {
                 data = new float[(int)FaceData.LipDataIndex.Max];
-                data.SetValue(float.NaN, 0);
+                Array.Fill(data, float.NaN);
             }
 
             public readonly float this[FaceData.LipDataIndex index] => data[(int)index];
