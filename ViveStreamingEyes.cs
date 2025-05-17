@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Elements.Core;
 using FrooxEngine;
 using ViveStreamingFaceTrackingModule;
@@ -14,7 +14,7 @@ namespace ViveStreamingFaceTrackingForResonite
             public EyeData()
             {
                 data = new float[(int)FaceData.EyeDataIndex.MAX];
-                data.SetValue(float.NaN, 0);
+                Array.Fill(data, float.NaN);
             }
 
             public float this[FaceData.EyeDataIndex index] => data[(int)index];
