@@ -46,7 +46,7 @@ namespace ViveStreamingFaceTrackingForResonite
                 {
                     Error(e);
                 }
-#pragma warning restore CA1031z
+#pragma warning restore CA1031
             });
         }
 
