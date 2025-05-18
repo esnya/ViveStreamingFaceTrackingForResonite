@@ -14,7 +14,10 @@ namespace ViveStreamingFaceTrackingForResonite
             public EyeData()
             {
                 data = new float[(int)FaceData.EyeDataIndex.MAX];
-                Array.Fill(data, float.NaN);
+                for (var i = 0; i < data.Length; i++)
+                {
+                    data[i] = float.NaN;
+                }
             }
 
             public float this[FaceData.EyeDataIndex index] => data[(int)index];
