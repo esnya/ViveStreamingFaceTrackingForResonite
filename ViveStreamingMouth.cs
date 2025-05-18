@@ -14,7 +14,10 @@ namespace ViveStreamingFaceTrackingForResonite
             public MouthData()
             {
                 data = new float[(int)FaceData.LipDataIndex.Max];
-                Array.Fill(data, float.NaN);
+                for (var i = 0; i < data.Length; i++)
+                {
+                    data[i] = float.NaN;
+                }
             }
 
             public readonly float this[FaceData.LipDataIndex index] => data[(int)index];
