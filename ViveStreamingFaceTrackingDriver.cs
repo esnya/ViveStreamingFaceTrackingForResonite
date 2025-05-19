@@ -1,7 +1,7 @@
 ﻿using System;
 using Elements.Core;
 using FrooxEngine;
-using ResoniteModLoader;
+using MonkeyLoader.Patching;
 using ViveStreamingFaceTrackingModule;
 
 namespace ViveStreamingFaceTrackingForResonite
@@ -26,7 +26,7 @@ namespace ViveStreamingFaceTrackingForResonite
 
         public ViveStreamingFaceTrackingDriver()
         {
-            ResoniteMod.Debug($"Initializing Vive Streaming Face Tracking");
+            Logger.Debug($"Initializing Vive Streaming Face Tracking");
 
             VS_PC_SDK.VS_SetCallbackFunction(OnStatusUpdate, OnSettingChange, OnDebugLog);
 
@@ -36,7 +36,7 @@ namespace ViveStreamingFaceTrackingForResonite
                 throw new InvalidOperationException($"Failed to initialize Vive Streaming Face Tracking SDK: {init_result}");
             }
 
-            ResoniteMod.Msg($"Vive Streaming Face Tracking Initialized. Server: v{VS_PC_SDK.VS_Version()}");
+            Logger.Info($"Vive Streaming Face Tracking Initialized. Server: v{VS_PC_SDK.VS_Version()}");
         }
 
         public int UpdateOrder => 100;
@@ -88,11 +88,11 @@ namespace ViveStreamingFaceTrackingForResonite
                     break;
 
                 case VS_SERVER_VERSION:
-                    ResoniteMod.Msg($"Vive Streaming Server v{value} connected.");
+                    Logger.Info($"Vive Streaming Server v{value} connected.");
                     break;
                 case HMD_NAME:
                     hmdName = value;
-                    ResoniteMod.Msg($"HMD Name: {value}");
+                    Logger.Info($"HMD Name: {value}");
                     break;
                 case VS_SERVER_STATE:
                     HandleServerState(value);
@@ -111,14 +111,14 @@ namespace ViveStreamingFaceTrackingForResonite
                     case 0:
                         if (!connected)
                         {
-                            ResoniteMod.Msg("HMD connected");
+                            Logger.Info("HMD connected");
                             connected = true;
                         }
                         break;
                     case 2:
                         if (connected)
                         {
-                            ResoniteMod.Msg("HMD disconnected");
+                            Logger.Info("HMD disconnected");
                             connected = false;
                         }
                         break;
@@ -130,12 +130,12 @@ namespace ViveStreamingFaceTrackingForResonite
 
         private static void OnSettingChange(string settings)
         {
-            ResoniteMod.Debug(settings);
+            Logger.Debug(settings);
         }
 
         private static void OnDebugLog(string message)
         {
-            ResoniteMod.Debug(message);
+            Logger.Debug(message);
         }
 
         public void UpdateInputs(float deltaTime)
@@ -151,7 +151,7 @@ namespace ViveStreamingFaceTrackingForResonite
             {
                 if (!VS_PC_SDK.VS_StartFaceTracking())
                 {
-                    ResoniteMod.Error("Failed to start face tracking");
+                    Logger.Error("Failed to start face tracking");
                     throw new InvalidOperationException("Failed to start face tracking");
                 }
                 _tracking = true;
@@ -161,7 +161,7 @@ namespace ViveStreamingFaceTrackingForResonite
             {
                 if (!VS_PC_SDK.VS_StopFaceTracking())
                 {
-                    ResoniteMod.Error("Failed to stop face tracking");
+                    Logger.Error("Failed to stop face tracking");
                     throw new InvalidOperationException("Failed to stop face tracking");
                 }
                 _tracking = false;
@@ -183,7 +183,7 @@ namespace ViveStreamingFaceTrackingForResonite
             var result = VS_PC_SDK.VS_Release();
             if (result != 0)
             {
-                ResoniteMod.Warn($"Failed to release Vive Streaming Face Tracking SDK: {result}");
+                Logger.Warn($"Failed to release Vive Streaming Face Tracking SDK: {result}");
             }
         }
     }

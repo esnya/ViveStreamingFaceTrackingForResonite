@@ -72,13 +72,9 @@
     <ResonitePath Condition="Exists('$(HOME)/.steam/steam/steamapps/common/Resonite/')">$(HOME)/.steam/steam/steamapps/common/Resonite/</ResonitePath>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ResoniteModLoader">
-      <HintPath>$(ResonitePath)Libraries\ResoniteModLoader.dll</HintPath>
-    </Reference>
-    <Reference Include="HarmonyLib">
-      <HintPath>$(ResonitePath)rml_libs\0Harmony.dll</HintPath>
-      <HintPath Condition="Exists('$(ResonitePath)0Harmony.dll')">$(ResonitePath)0Harmony.dll</HintPath>
-    </Reference>
+    <PackageReference Include="MonkeyLoader" Version="0.19.0-beta" />
+    <PackageReference Include="MonkeyLoader.GamePacks.Unity" Version="0.6.0-beta" />
+    <PackageReference Include="HarmonyLib" Version="2.2.2" />
     <Reference Include="FrooxEngine">
       <HintPath>$(ResonitePath)Resonite_Data\Managed\FrooxEngine.dll</HintPath>
     </Reference>

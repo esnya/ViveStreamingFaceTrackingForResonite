@@ -3,18 +3,15 @@ using System.Linq;
 using System.Reflection;
 using Elements.Core;
 using FrooxEngine;
-using ResoniteModLoader;
+using MonkeyLoader.Patching;
 
 
 
 
-#if DEBUG
-using ResoniteHotReloadLib;
-#endif
 
 namespace ViveStreamingFaceTrackingForResonite
 {
-    public partial class ViveStreamingFaceTrackingMod : ResoniteMod
+    public partial class ViveStreamingFaceTrackingMod : Monkey<ViveStreamingFaceTrackingMod>
     {
         private static Assembly ModAssembly => typeof(ViveStreamingFaceTrackingMod).Assembly;
 
@@ -23,23 +20,17 @@ namespace ViveStreamingFaceTrackingForResonite
         public override string Version => ModAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
         public override string Link => ModAssembly.GetCustomAttributes<AssemblyMetadataAttribute>().First(meta => meta.Key == "RepositoryUrl").Value;
 
-        private static ModConfiguration? config;
         private static readonly ViveStreamingFaceTrackingDriver driver = new();
-        [AutoRegisterConfigKey]
-        private static readonly ModConfigurationKey<bool> enabledkey = new("Enabled", "Enable Mod", () => true);
 
         public override void OnEngineInit()
         {
-#if DEBUG
-            HotReloader.RegisterForHotReload(this);
-#endif
 
             Engine.Current.RunPostInit(() =>
             {
 #pragma warning disable CA1031
                 try
                 {
-                    Init(this);
+                    Init();
                     Engine.Current.InputInterface.RegisterInputDriver(driver);
                 }
                 catch (Exception e)
@@ -50,29 +41,10 @@ namespace ViveStreamingFaceTrackingForResonite
             });
         }
 
-        private static void Init(ResoniteMod modInstance)
+        private static void Init()
         {
-            config = modInstance?.GetConfiguration();
-
-            driver.active = config?.GetValue(enabledkey) ?? true;
-
-            enabledkey.OnChanged += (_) =>
-            {
-                driver.active = config?.GetValue(enabledkey) ?? true;
-            };
+            driver.active = true; // TODO: add configuration support when available
         }
 
-#if DEBUG
-        public static void BeforeHotReload()
-        {
-            driver.Dispose();
-        }
-
-        public static void OnHotReload(ResoniteMod modInstance)
-        {
-            Init(modInstance);
-            Engine.Current.InputInterface.RegisterInputDriver(driver);
-        }
-#endif
     }
 }
