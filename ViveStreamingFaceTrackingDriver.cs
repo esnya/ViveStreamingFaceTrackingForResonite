@@ -22,7 +22,7 @@ namespace ViveStreamingFaceTrackingForResonite
         private static string? lipData;
 
         private bool _tracking;
-        public bool active;
+        public bool IsActive { get; set; }
 
         public ViveStreamingFaceTrackingDriver()
         {
@@ -147,7 +147,7 @@ namespace ViveStreamingFaceTrackingForResonite
                 _tracking = false;
             }
 
-            if (connected && !_tracking && active)
+            if (connected && !_tracking && IsActive)
             {
                 if (!VS_PC_SDK.VS_StartFaceTracking())
                 {
@@ -157,7 +157,7 @@ namespace ViveStreamingFaceTrackingForResonite
                 _tracking = true;
             }
 
-            if (connected && _tracking && !active)
+            if (connected && _tracking && !IsActive)
             {
                 if (!VS_PC_SDK.VS_StopFaceTracking())
                 {
@@ -178,7 +178,7 @@ namespace ViveStreamingFaceTrackingForResonite
 
         public void Dispose()
         {
-            active = false;
+            IsActive = false;
 
             var result = VS_PC_SDK.VS_Release();
             if (result != 0)

@@ -54,11 +54,11 @@ namespace ViveStreamingFaceTrackingForResonite
         {
             config = modInstance?.GetConfiguration();
 
-            driver.active = config?.GetValue(enabledkey) ?? true;
+            driver.IsActive = config?.GetValue(enabledkey) ?? true;
 
             enabledkey.OnChanged += (_) =>
             {
-                driver.active = config?.GetValue(enabledkey) ?? true;
+                driver.IsActive = config?.GetValue(enabledkey) ?? true;
             };
         }
 
