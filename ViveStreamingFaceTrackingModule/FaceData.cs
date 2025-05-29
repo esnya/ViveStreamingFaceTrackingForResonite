@@ -1,4 +1,4 @@
-﻿namespace ViveStreamingFaceTrackingModule
+namespace ViveStreamingFaceTrackingModule
 {
     public static class FaceData
     {

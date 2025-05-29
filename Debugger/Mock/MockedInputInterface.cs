@@ -1,4 +1,4 @@
-﻿using FrooxEngine;
+using FrooxEngine;
 
 namespace Debugger.Mock
 {
