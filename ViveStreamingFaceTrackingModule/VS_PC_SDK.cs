@@ -21,12 +21,12 @@ namespace ViveStreamingFaceTrackingModule
         [DllImport("VS_PC_SDK.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern int VS_Release();
 
-        [DllImport("VS_PC_SDK.dll", CallingConvention = CallingConvention.Cdecl)]        
+        [DllImport("VS_PC_SDK.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern void VS_SetCallbackFunction(VS_StatusUpdateCallback pStatusUpdateCallback, VS_SettingChangeCallback pSettingChangeCallback, VS_LoggerCallback pDebugLogCallback);
 
         [DllImport("VS_PC_SDK.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool VS_StartFaceTracking();
-        
+
         [DllImport("VS_PC_SDK.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool VS_StopFaceTracking();
 
