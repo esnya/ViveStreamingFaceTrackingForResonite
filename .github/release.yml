@@ -18,6 +18,6 @@ changelog:
     - title: 💄 UI Styles
       labels:
       - style
-    - title: Othre Changes
+    - title: Other Changes
       labels:
       - "*"
