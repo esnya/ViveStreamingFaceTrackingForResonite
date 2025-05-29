@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Elements.Core;
 using FrooxEngine;
 using ResoniteModLoader;
