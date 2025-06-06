@@ -41,8 +41,9 @@ namespace ViveStreamingFaceTrackingModule
             TIMESTAMP, // unused
             LEFT_PUPIL_DIAMETER,
             RIGHT_PUPIL_DIAMETER,
-            MAX
+            MAX,
         }
+
         public enum LipDataIndex : int
         {
             Jaw_Right = 0,
@@ -82,7 +83,7 @@ namespace ViveStreamingFaceTrackingModule
             Tongue_Upleft_Morph,
             Tongue_Downright_Morph,
             Tongue_Downleft_Morph,
-            Max
+            Max,
         }
     }
 }

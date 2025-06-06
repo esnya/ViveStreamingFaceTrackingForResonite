@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <!--
+    Install Target - Install mod to Resonite
+    Usage: dotnet msbuild -t:Install
+
+    Installs mod and native dependencies to Resonite folders
+    - Always copies without version checks
+    - Builds project if needed
+    - Installs to main mods folder, and additionally to HotReload folder for Debug builds
+    - Copies native dependencies to Resonite root folder
+  -->
+  <Target Name="Install" DependsOnTargets="Build">
+    <!-- Always install to main mods folder -->
+    <Message
+      Text="Installing $(TargetFileName) to Resonite mods folder: $(ResoniteModsPath)"
+      Importance="high"
+    />
+    <MakeDir Directories="$(ResoniteModsPath)" Condition="!Exists('$(ResoniteModsPath)')" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ResoniteModsPath)" />
+    <!-- Additionally install to HotReload folder for Debug builds -->
+    <Message
+      Text="Installing $(TargetFileName) to Resonite hot reload folder: $(ResoniteHotReloadPath)"
+      Importance="high"
+      Condition="'$(Configuration)'=='Debug'"
+    />
+    <MakeDir
+      Directories="$(ResoniteHotReloadPath)"
+      Condition="'$(Configuration)'=='Debug' AND !Exists('$(ResoniteHotReloadPath)')"
+    />
+    <Copy
+      SourceFiles="$(TargetPath)"
+      DestinationFolder="$(ResoniteHotReloadPath)"
+      Condition="'$(Configuration)'=='Debug'"
+    />
+    <!-- Copy native dependencies to Resonite root folder -->
+    <Message
+      Text="Installing native dependencies to Resonite folder: $(ResonitePath)"
+      Importance="high"
+    />
+    <ItemGroup>
+      <NativeDependencies Include="$(MSBuildThisFileDirectory)ViveStreamingFaceTrackingModule\Libs\*.dll" />
+    </ItemGroup>
+    <Copy
+      SourceFiles="@(NativeDependencies)"
+      DestinationFolder="$(ResonitePath)"
+      SkipUnchangedFiles="false"
+      ContinueOnError="true"
+    />
+  </Target>
+</Project>

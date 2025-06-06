@@ -1,19 +1,19 @@
-using Microsoft.Extensions.Logging;
 using System.Diagnostics;
+using System.Linq;
+using System.Numerics;
+using System.Runtime.CompilerServices;
+using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
+using System.Xml.Linq;
+using Microsoft.Extensions.Logging;
+using Microsoft.VisualBasic;
 using Microsoft.Win32;
 using VRCFaceTracking;
 using VRCFaceTracking.Core.Library;
 using VRCFaceTracking.Core.Params.Data;
 using VRCFaceTracking.Core.Params.Expressions;
 using VRCFaceTracking.Core.Types;
-using Microsoft.VisualBasic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.ConstrainedExecution;
 using static ViveStreamingFaceTrackingModule.FaceData;
-using System.Numerics;
-using System.Xml.Linq;
 
 namespace ViveStreamingFaceTrackingModule
 {
@@ -38,6 +38,7 @@ namespace ViveStreamingFaceTrackingModule
         private static int FACE_TRACKER_DATA_TIMEOUT_MS = 3000; // For init
 
         private static List<string> mVSMessageQueue = new List<string>();
+
         private static void OnVSStatusUpdate(string status, string value)
         {
             string strMsg = "";
@@ -115,13 +116,15 @@ namespace ViveStreamingFaceTrackingModule
         {
             // mVSMessageQueue.Add($"VS_PC_SDK: {setting}");
         }
+
         private static void OnVSWriteLog(string logMsg)
         {
             mVSMessageQueue.Add($"VS_PC_SDK: {logMsg}");
         }
 
         private static VS_PC_SDK.VS_StatusUpdateCallback mVSStatusUpdateCallback = OnVSStatusUpdate;
-        private static VS_PC_SDK.VS_SettingChangeCallback mVSSettingChangeCallback = OnVSSettingChange;
+        private static VS_PC_SDK.VS_SettingChangeCallback mVSSettingChangeCallback =
+            OnVSSettingChange;
         private static VS_PC_SDK.VS_LoggerCallback mVSLogger = OnVSWriteLog;
 
         // Kernel32 SetDllDirectory
@@ -134,7 +137,10 @@ namespace ViveStreamingFaceTrackingModule
         // This is the first function ran by VRCFaceTracking. Make sure to completely initialize
         // your tracking interface or the data to be accepted by VRCFaceTracking here. This will let
         // VRCFaceTracking know what data is available to be sent from your tracking interface at initialization.
-        public override (bool eyeSuccess, bool expressionSuccess) Initialize(bool eyeAvailable, bool expressionAvailable)
+        public override (bool eyeSuccess, bool expressionSuccess) Initialize(
+            bool eyeAvailable,
+            bool expressionAvailable
+        )
         {
             var state = (eyeAvailable, expressionAvailable);
 
@@ -142,7 +148,9 @@ namespace ViveStreamingFaceTrackingModule
 
             // Display image
             System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
-            var stream = assembly.GetManifestResourceStream("ViveStreamingFaceTrackingModule.resource.VBS_XRE.png");
+            var stream = assembly.GetManifestResourceStream(
+                "ViveStreamingFaceTrackingModule.resource.VBS_XRE.png"
+            );
             ModuleInformation.StaticImages =
                 stream != null ? new List<Stream> { stream } : ModuleInformation.StaticImages;
 
@@ -157,7 +165,11 @@ namespace ViveStreamingFaceTrackingModule
             SetDllDirectory(Path.Combine(dllDirectory, "Libs"));
 
             // Set callback before VS_Init() to collect init fail log
-            VS_PC_SDK.VS_SetCallbackFunction(mVSStatusUpdateCallback, mVSSettingChangeCallback, mVSLogger);
+            VS_PC_SDK.VS_SetCallbackFunction(
+                mVSStatusUpdateCallback,
+                mVSSettingChangeCallback,
+                mVSLogger
+            );
             var intResult = VS_PC_SDK.VS_Init();
             if (intResult == 0)
             {
@@ -250,13 +262,12 @@ namespace ViveStreamingFaceTrackingModule
                 {
                     ThrottleLogger($"Update() Data exception {ex.Message}");
                 }
-
             }
 
             // User toggled "ToggleTracking" or HMD disconnected
             if (Status == ModuleState.Idle || !HasClientConnection)
             {
-               StopFaceTracking();
+                StopFaceTracking();
             }
 
             // PC SDK init failed probably due to failed to load DLL, no way to recover this ... ?
@@ -273,6 +284,7 @@ namespace ViveStreamingFaceTrackingModule
 
         private static int retryCount = 0;
         public static Thread? InitFaceTrackerWorker = null;
+
         private void StartFaceTracking()
         {
             if (!HasClientConnection)
@@ -300,7 +312,6 @@ namespace ViveStreamingFaceTrackingModule
                     {
                         ThrottleLogger($"InitFaceTrackerWorker exception {ex.Message}");
                     }
-
                 }
             }
         }
@@ -341,12 +352,13 @@ namespace ViveStreamingFaceTrackingModule
                     Thread.Sleep(sleepMs);
                 }
 
-                if (EyeTrackerInited && LipTrackerInited) {
+                if (EyeTrackerInited && LipTrackerInited)
+                {
                     break;
                 }
             }
 
-            string result = (EyeTrackerInited || LipTrackerInited)? "started" : "failed to start";
+            string result = (EyeTrackerInited || LipTrackerInited) ? "started" : "failed to start";
             mVSMessageQueue.Add($"Face tracking {result}");
 
             // Both tracker failed, re-establish pipe
@@ -354,7 +366,9 @@ namespace ViveStreamingFaceTrackingModule
             {
                 if (retryCount < MAX_RETRY_COUNT)
                 {
-                    mVSMessageQueue.Add($"Initialize face trackers timeout. Retrying ... ({retryCount})");
+                    mVSMessageQueue.Add(
+                        $"Initialize face trackers timeout. Retrying ... ({retryCount})"
+                    );
                     /*VS_PC_SDK.VS_Release();
                     Thread.Sleep(10);
                     VS_PC_SDK.VS_SetCallbackFunction(mVSStatusUpdateCallback, mVSSettingChangeCallback, mVSLogger);
@@ -362,7 +376,9 @@ namespace ViveStreamingFaceTrackingModule
                 }
                 else
                 {
-                    mVSMessageQueue.Add($"Failed to initialize face trackers after ({retryCount}) retries. You can force retry by 'Toggle Tracking'");
+                    mVSMessageQueue.Add(
+                        $"Failed to initialize face trackers after ({retryCount}) retries. You can force retry by 'Toggle Tracking'"
+                    );
                 }
             }
         }

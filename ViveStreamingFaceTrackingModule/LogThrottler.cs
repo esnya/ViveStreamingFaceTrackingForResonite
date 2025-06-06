@@ -1,17 +1,18 @@
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace ViveStreamingFaceTrackingModule
 {
     public static class LogThrottler
     {
         private static readonly TimeSpan Duration = TimeSpan.FromSeconds(60);
-        private static readonly ConcurrentDictionary<string, DateTime> LastLoggedTimes = new ConcurrentDictionary<string, DateTime>();
+        private static readonly ConcurrentDictionary<string, DateTime> LastLoggedTimes =
+            new ConcurrentDictionary<string, DateTime>();
 
         public static bool ShouldLog(string message)
         {

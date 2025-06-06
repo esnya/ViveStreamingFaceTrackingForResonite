@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <!-- Only apply to projects not in template directory -->
+  <PropertyGroup Condition="!$(MSBuildProjectDirectory.Contains('EsnyaResoniteModTemplate'))">
+    <!-- Common Package Properties - Update these when creating a new mod from this template -->
+    <Authors>esnya</Authors>
+    <Description>Mod to use Vive face tracking with Vive Streaming in Resonite</Description>
+    <RepositoryUrl>https://github.com/esnya/ViveStreamingFaceTrackingForResonite</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Copyright>Copyright (c) 2025 $(Authors)</Copyright>
+    <PackageTags>Resonite,Mod,ResoniteModLoader,Vive,FaceTracking</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Version>0.1.2.0</Version>
+  </PropertyGroup>
+  <!-- Common Build Properties -->
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <Platforms>x64</Platforms>
+    <Deterministic>true</Deterministic>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <!-- Assembly Metadata -->
+    <AssemblyTitle>$(MSBuildProjectName)</AssemblyTitle>
+    <Product>$(MSBuildProjectName)</Product>
+    <!-- Code Quality -->
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest-all</AnalysisLevel>
+    <WarningLevel>9999</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
+    <WarningsNotAsErrors>NU1701</WarningsNotAsErrors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+  <!-- Configuration-specific properties -->
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+  <!-- Resonite Path Discovery -->
+  <PropertyGroup Condition="'$(ResonitePath)'==''">
+    <!-- Default to local folder -->
+    <ResonitePath>$([System.IO.Path]::Combine('$(MSBuildThisFileDirectory)', 'Resonite'))</ResonitePath>
+    <!-- Windows Steam path -->
+    <ResonitePath
+      Condition="'$(OS)'=='Windows_NT' AND Exists('C:\\Program Files (x86)\\Steam\\steamapps\\common\\Resonite\\')"
+      >C:\Program Files (x86)\Steam\steamapps\common\Resonite</ResonitePath
+    >
+    <!-- Linux Steam path -->
+    <ResonitePath
+      Condition="'$(OS)'!='Windows_NT' AND Exists('$(USERPROFILE)\.steam\steam\steamapps\common\Resonite\')"
+      >$(USERPROFILE)\.steam\steam\steamapps\common\Resonite</ResonitePath
+    >
+    <ResonitePath
+      Condition="'$(OS)'!='Windows_NT' AND Exists('$(HOME)/.steam/steam/steamapps/common/Resonite/')"
+      >$(HOME)/.steam/steam/steamapps/common/Resonite</ResonitePath
+    >
+  </PropertyGroup>
+  <!-- Normalize ResonitePath -->
+  <PropertyGroup>
+    <ResonitePath>$([MSBuild]::EnsureTrailingSlash('$(ResonitePath)'))</ResonitePath>
+  </PropertyGroup>
+  <!-- Derived Resonite Paths -->
+  <PropertyGroup>
+    <ResoniteManagedPath>$([System.IO.Path]::Combine('$(ResonitePath)', 'Resonite_Data', 'Managed'))</ResoniteManagedPath>
+    <ResoniteModsPath>$([System.IO.Path]::Combine('$(ResonitePath)', 'rml_mods'))</ResoniteModsPath>
+    <ResoniteHotReloadPath>$([System.IO.Path]::Combine('$(ResonitePath)', 'rml_mods', 'HotReloadMods'))</ResoniteHotReloadPath>
+    <ResoniteLibsPath>$([System.IO.Path]::Combine('$(ResonitePath)', 'rml_libs'))</ResoniteLibsPath>
+  </PropertyGroup>
+  <!-- Common Resonite References -->
+  <ItemGroup>
+    <!-- Core Resonite Mod Dependencies -->
+    <Reference Include="ResoniteModLoader">
+      <HintPath>$([System.IO.Path]::Combine('$(ResonitePath)', 'Libraries', 'ResoniteModLoader.dll'))</HintPath>
+      <Private>$(IsTestProject)</Private>
+    </Reference>
+    <Reference Include="HarmonyLib">
+      <HintPath>$([System.IO.Path]::Combine('$(ResoniteLibsPath)', '0Harmony.dll'))</HintPath>
+      <Private>$(IsTestProject)</Private>
+    </Reference>
+    <!-- Core Resonite Engine References (Managed) -->
+    <Reference Include="FrooxEngine">
+      <HintPath>$([System.IO.Path]::Combine('$(ResoniteManagedPath)', 'FrooxEngine.dll'))</HintPath>
+      <Private>$(IsTestProject)</Private>
+    </Reference>
+    <Reference Include="Elements.Core">
+      <HintPath>$([System.IO.Path]::Combine('$(ResoniteManagedPath)', 'Elements.Core.dll'))</HintPath>
+      <Private>$(IsTestProject)</Private>
+    </Reference>
+    <Reference Include="Elements.Assets">
+      <HintPath>$([System.IO.Path]::Combine('$(ResoniteManagedPath)', 'Elements.Assets.dll'))</HintPath>
+      <Private>$(IsTestProject)</Private>
+    </Reference>
+    <!-- System Packages - Aligned with FrooxEngine -->
+    <!-- Debug-only references -->
+    <Reference Include="ResoniteHotReloadLib" Condition="'$(Configuration)'=='Debug'">
+      <HintPath>$([System.IO.Path]::Combine('$(ResoniteLibsPath)', 'ResoniteHotReloadLib.dll'))</HintPath>
+      <Private>$(IsTestProject)</Private>
+    </Reference>
+  </ItemGroup>
+  <!-- Common Items -->
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory).github\**\*" LinkBase=".github" />
+    <EditorConfigFiles Remove="$(MSBuildProjectDirectory)**\*.editorconfig" />
+  </ItemGroup>
+</Project>

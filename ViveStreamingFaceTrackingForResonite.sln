@@ -3,12 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.12.35728.132
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ViveStreamingFaceTrackingForResonite", "ViveStreamingFaceTrackingForResonite.csproj", "{B02C5A4A-F564-4EA5-AAF8-947D20779C6F}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DebugConsole", "Debugger\DebugConsole.csproj", "{3BBE2316-3F9C-498D-9B6A-47B6F77F5884}"
-	ProjectSection(ProjectDependencies) = postProject
-		{B02C5A4A-F564-4EA5-AAF8-947D20779C6F} = {B02C5A4A-F564-4EA5-AAF8-947D20779C6F}
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ViveStreamingFaceTrackingForResonite", "ViveStreamingFaceTrackingForResonite\ViveStreamingFaceTrackingForResonite.csproj", "{B02C5A4A-F564-4EA5-AAF8-947D20779C6F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,14 +21,6 @@ Global
 		{B02C5A4A-F564-4EA5-AAF8-947D20779C6F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B02C5A4A-F564-4EA5-AAF8-947D20779C6F}.Release|x64.ActiveCfg = Release|x64
 		{B02C5A4A-F564-4EA5-AAF8-947D20779C6F}.Release|x64.Build.0 = Release|x64
-		{3BBE2316-3F9C-498D-9B6A-47B6F77F5884}.Debug|Any CPU.ActiveCfg = Debug|x64
-		{3BBE2316-3F9C-498D-9B6A-47B6F77F5884}.Debug|Any CPU.Build.0 = Debug|x64
-		{3BBE2316-3F9C-498D-9B6A-47B6F77F5884}.Debug|x64.ActiveCfg = Debug|x64
-		{3BBE2316-3F9C-498D-9B6A-47B6F77F5884}.Debug|x64.Build.0 = Debug|x64
-		{3BBE2316-3F9C-498D-9B6A-47B6F77F5884}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3BBE2316-3F9C-498D-9B6A-47B6F77F5884}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3BBE2316-3F9C-498D-9B6A-47B6F77F5884}.Release|x64.ActiveCfg = Release|x64
-		{3BBE2316-3F9C-498D-9B6A-47B6F77F5884}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

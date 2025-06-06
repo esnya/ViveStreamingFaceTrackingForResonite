@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>ViveStreamingFaceTracking</AssemblyName>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+  </PropertyGroup>
+  <!-- Exclude specific files from ViveStreamingFaceTrackingModule -->
+  <ItemGroup>
+    <Compile Remove="..\ViveStreamingFaceTrackingModule\**\LogThrottler.cs" />
+    <Compile Remove="..\ViveStreamingFaceTrackingModule\**\ViveStreamingFaceTrackingInterface.cs" />
+    <Compile Remove="..\ViveStreamingFaceTrackingModule\lib\**" />
+    <EmbeddedResource Remove="..\ViveStreamingFaceTrackingModule\**\*.resx" />
+    <EmbeddedResource Remove="..\ViveStreamingFaceTrackingModule\lib\**" />
+    <None Remove="..\ViveStreamingFaceTrackingModule\**\*.png" />
+    <None Remove="..\ViveStreamingFaceTrackingModule\lib\**" />
+  </ItemGroup>
+  <!-- Include required files from ViveStreamingFaceTrackingModule -->
+  <ItemGroup>
+    <Compile Include="..\ViveStreamingFaceTrackingModule\FaceData.cs" />
+    <Compile Include="..\ViveStreamingFaceTrackingModule\VS_PC_SDK.cs" />
+  </ItemGroup>
+  <!-- Project-specific references -->
+  <ItemGroup>
+    <Reference Include="System.Memory">
+      <HintPath>$(ResoniteManagedPath)\System.Memory.dll</HintPath>
+      <Private>$(IsTestProject)</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

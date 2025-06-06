@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <!-- Warning suppression settings specific to ViveStreamingFaceTrackingModule -->
+  <PropertyGroup>
+    <!-- Suppress specific warnings for the external ViveStreamingFaceTrackingModule -->
+    <NoWarn>$(NoWarn);CS1591;CS0649;IDE0049;IDE0160;IDE0161</NoWarn>
+    <!-- Disable XML documentation file generation for this module -->
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <!-- Don't treat warnings as errors for this external module -->
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+</Project>
