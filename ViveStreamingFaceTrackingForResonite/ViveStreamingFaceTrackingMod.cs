@@ -39,12 +39,62 @@ public partial class ViveStreamingFaceTrackingMod : ResoniteMod
 
     private static ModConfiguration? config;
     private static readonly ViveStreamingFaceTrackingDriver driver = new();
+    private static ViveStreamingFaceTrackingConfigManager? configManager;
 
     [AutoRegisterConfigKey]
     private static readonly ModConfigurationKey<bool> enabledkey = new(
         "Enabled",
         "Enable Mod",
         () => true
+    );
+
+    [AutoRegisterConfigKey]
+    private static readonly ModConfigurationKey<string> connectionStatusKey = new(
+        "ConnectionStatus",
+        "Connection Status (Read-only)",
+        () => "Disconnected"
+    );
+
+    [AutoRegisterConfigKey]
+    private static readonly ModConfigurationKey<string> hmdModelKey = new(
+        "HMDModel",
+        "HMD Model (Read-only)",
+        () => "Unknown"
+    );
+
+    [AutoRegisterConfigKey]
+    private static readonly ModConfigurationKey<string> eyeTrackingStatusKey = new(
+        "EyeTrackingStatus",
+        "Eye Tracking Status (Read-only)",
+        () => "Disconnected"
+    );
+
+    [AutoRegisterConfigKey]
+    private static readonly ModConfigurationKey<string> mouthTrackingStatusKey = new(
+        "MouthTrackingStatus",
+        "Mouth Tracking Status (Read-only)",
+        () => "Disconnected"
+    );
+
+    [AutoRegisterConfigKey]
+    private static readonly ModConfigurationKey<int> eyeDataCountKey = new(
+        "EyeDataCount",
+        "Active Eye Data Points (Read-only)",
+        () => 0
+    );
+
+    [AutoRegisterConfigKey]
+    private static readonly ModConfigurationKey<int> mouthDataCountKey = new(
+        "MouthDataCount",
+        "Active Mouth Data Points (Read-only)",
+        () => 0
+    );
+
+    [AutoRegisterConfigKey]
+    private static readonly ModConfigurationKey<int> frameRateKey = new(
+        "FrameRate",
+        "Tracking Frame Rate (Read-only)",
+        () => -1
     );
 
     /// <inheritdoc />
@@ -80,6 +130,36 @@ public partial class ViveStreamingFaceTrackingMod : ResoniteMod
         {
             driver.IsActive = config?.GetValue(enabledkey) ?? true;
         };
+
+        if (config != null)
+        {
+            configManager = new ViveStreamingFaceTrackingConfigManager(
+                config,
+                connectionStatusKey,
+                hmdModelKey,
+                eyeTrackingStatusKey,
+                mouthTrackingStatusKey,
+                eyeDataCountKey,
+                mouthDataCountKey,
+                frameRateKey
+            );
+
+            ViveStreamingFaceTrackingDriver.StatusChanged += OnStatusChanged;
+        }
+    }
+
+    private static void OnStatusChanged(object? sender, StatusChangedEventArgs e)
+    {
+        if (configManager != null)
+        {
+            configManager.ConnectionStatus = e.ConnectionStatus;
+            configManager.HmdModel = e.HmdModel;
+            configManager.EyeTrackingStatus = e.EyeTrackingStatus;
+            configManager.MouthTrackingStatus = e.MouthTrackingStatus;
+            configManager.EyeDataCount = e.EyeDataCount;
+            configManager.MouthDataCount = e.MouthDataCount;
+            configManager.FrameRate = e.FrameRate;
+        }
     }
 
 #if DEBUG
@@ -88,7 +168,9 @@ public partial class ViveStreamingFaceTrackingMod : ResoniteMod
     /// </summary>
     public static void BeforeHotReload()
     {
+        ViveStreamingFaceTrackingDriver.StatusChanged -= OnStatusChanged;
         driver.Dispose();
+        configManager = null;
     }
 
     /// <summary>

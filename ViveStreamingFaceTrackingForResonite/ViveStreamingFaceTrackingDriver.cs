@@ -7,6 +7,75 @@ using ViveStreamingFaceTrackingModule;
 namespace ViveStreamingFaceTrackingForResonite;
 
 /// <summary>
+/// Event arguments for status change events.
+/// </summary>
+public sealed class StatusChangedEventArgs : EventArgs
+{
+    /// <summary>
+    /// Gets the connection status.
+    /// </summary>
+    public string ConnectionStatus { get; }
+
+    /// <summary>
+    /// Gets the HMD model.
+    /// </summary>
+    public string HmdModel { get; }
+
+    /// <summary>
+    /// Gets the eye tracking status.
+    /// </summary>
+    public string EyeTrackingStatus { get; }
+
+    /// <summary>
+    /// Gets the mouth tracking status.
+    /// </summary>
+    public string MouthTrackingStatus { get; }
+
+    /// <summary>
+    /// Gets the number of active eye data points.
+    /// </summary>
+    public int EyeDataCount { get; }
+
+    /// <summary>
+    /// Gets the number of active mouth data points.
+    /// </summary>
+    public int MouthDataCount { get; }
+
+    /// <summary>
+    /// Gets the tracking frame rate.
+    /// </summary>
+    public int FrameRate { get; }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="StatusChangedEventArgs"/> class.
+    /// </summary>
+    /// <param name="connectionStatus">The connection status.</param>
+    /// <param name="hmdModel">The HMD model.</param>
+    /// <param name="eyeTrackingStatus">The eye tracking status.</param>
+    /// <param name="mouthTrackingStatus">The mouth tracking status.</param>
+    /// <param name="eyeDataCount">The number of active eye data points.</param>
+    /// <param name="mouthDataCount">The number of active mouth data points.</param>
+    /// <param name="frameRate">The tracking frame rate.</param>
+    public StatusChangedEventArgs(
+        string connectionStatus,
+        string hmdModel,
+        string eyeTrackingStatus,
+        string mouthTrackingStatus,
+        int eyeDataCount,
+        int mouthDataCount,
+        int frameRate)
+    {
+        ConnectionStatus = connectionStatus;
+        HmdModel = hmdModel;
+        EyeTrackingStatus = eyeTrackingStatus;
+        MouthTrackingStatus = mouthTrackingStatus;
+        EyeDataCount = eyeDataCount;
+        MouthDataCount = mouthDataCount;
+        FrameRate = frameRate;
+    }
+}
+
+/// <summary>
 /// Vive Streaming Face Tracking input driver for Resonite.
 /// </summary>
 public sealed class ViveStreamingFaceTrackingDriver : IInputDriver, IDisposable
@@ -20,16 +89,46 @@ public sealed class ViveStreamingFaceTrackingDriver : IInputDriver, IDisposable
     private ViveStreamingMouth? mouth;
 
     private static string? hmdName;
-    private static bool connected;
+    private static bool Connected { get; set; }
     private static string? eyeData;
     private static string? lipData;
 
+    // Tracking statistics
+    private static int eyeDataCount;
+    private static int mouthDataCount;
+    private static DateTime lastEyeDataTime = DateTime.MinValue;
+    private static DateTime lastMouthDataTime = DateTime.MinValue;
+    private static int eyeFrameCount;
+    private static int mouthFrameCount;
+    private static DateTime lastFrameRateUpdate = DateTime.UtcNow;
+    private static DateTime lastStatusUpdate = DateTime.UtcNow;
+
     private bool _tracking;
+
+    /// <summary>
+    /// Event fired when connection status or HMD model changes.
+    /// </summary>
+    public static event EventHandler<StatusChangedEventArgs>? StatusChanged;
 
     /// <summary>
     /// Gets or sets a value indicating whether this driver is active.
     /// </summary>
     public bool IsActive { get; set; }
+
+    /// <summary>
+    /// Gets a value indicating whether the HMD is connected.
+    /// </summary>
+    public static bool IsConnected => Connected;
+
+    /// <summary>
+    /// Gets the HMD model name.
+    /// </summary>
+    public static string HMDModel => hmdName ?? "Unknown";
+
+    /// <summary>
+    /// Gets the connection status as a human-readable string.
+    /// </summary>
+    public static string ConnectionStatus => Connected ? "Connected" : "Disconnected";
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ViveStreamingFaceTrackingDriver"/> class.
@@ -97,11 +196,13 @@ public sealed class ViveStreamingFaceTrackingDriver : IInputDriver, IDisposable
             case "2498":
             case EYE_DATA:
                 eyeData = value;
+                UpdateEyeDataStats(value);
                 break;
 
             case "2499":
             case LIP_DATA:
                 lipData = value;
+                UpdateMouthDataStats(value);
                 break;
 
             case VS_SERVER_VERSION:
@@ -110,6 +211,7 @@ public sealed class ViveStreamingFaceTrackingDriver : IInputDriver, IDisposable
             case HMD_NAME:
                 hmdName = value;
                 ResoniteMod.Msg($"HMD Name: {value}");
+                NotifyStatusChanged();
                 break;
             case VS_SERVER_STATE:
                 HandleServerState(value);
@@ -119,6 +221,42 @@ public sealed class ViveStreamingFaceTrackingDriver : IInputDriver, IDisposable
         }
     }
 
+    private static void UpdateEyeDataStats(string data)
+    {
+        var parts = data.Split(',');
+        var validDataCount = 0;
+
+        foreach (var part in parts)
+        {
+            if (float.TryParse(part, out var value) && !float.IsNaN(value))
+            {
+                validDataCount++;
+            }
+        }
+
+        eyeDataCount = validDataCount;
+        lastEyeDataTime = DateTime.UtcNow;
+        eyeFrameCount++;
+    }
+
+    private static void UpdateMouthDataStats(string data)
+    {
+        var parts = data.Split(',');
+        var validDataCount = 0;
+
+        foreach (var part in parts)
+        {
+            if (float.TryParse(part, out var value) && !float.IsNaN(value))
+            {
+                validDataCount++;
+            }
+        }
+
+        mouthDataCount = validDataCount;
+        lastMouthDataTime = DateTime.UtcNow;
+        mouthFrameCount++;
+    }
+
     private static void HandleServerState(string value)
     {
         if (int.TryParse(value, out var state))
@@ -126,17 +264,19 @@ public sealed class ViveStreamingFaceTrackingDriver : IInputDriver, IDisposable
             switch (state)
             {
                 case 0:
-                    if (!connected)
+                    if (!Connected)
                     {
                         ResoniteMod.Msg("HMD connected");
-                        connected = true;
+                        Connected = true;
+                        NotifyStatusChanged();
                     }
                     break;
                 case 2:
-                    if (connected)
+                    if (Connected)
                     {
                         ResoniteMod.Msg("HMD disconnected");
-                        connected = false;
+                        Connected = false;
+                        NotifyStatusChanged();
                     }
                     break;
                 default:
@@ -155,16 +295,83 @@ public sealed class ViveStreamingFaceTrackingDriver : IInputDriver, IDisposable
         ResoniteMod.Debug(message);
     }
 
+    /// <summary>
+    /// Notifies subscribers about status changes.
+    /// </summary>
+    private static void NotifyStatusChanged()
+    {
+        var connectionStatus = Connected ? "Connected" : "Disconnected";
+        var hmdModel = hmdName ?? "Unknown";
+        var eyeTrackingStatus = GetEyeTrackingStatus();
+        var mouthTrackingStatus = GetMouthTrackingStatus();
+        var frameRate = GetFrameRate();
+
+        StatusChanged?.Invoke(null, new StatusChangedEventArgs(
+            connectionStatus,
+            hmdModel,
+            eyeTrackingStatus,
+            mouthTrackingStatus,
+            eyeDataCount,
+            mouthDataCount,
+            frameRate));
+    }
+
+    private static string GetEyeTrackingStatus()
+    {
+        if (!Connected)
+        {
+            return "Disconnected";
+        }
+        var timeSinceLastData = DateTime.UtcNow - lastEyeDataTime;
+        return timeSinceLastData.TotalSeconds < 1.0 ? "Active" : "Inactive";
+    }
+
+    private static string GetMouthTrackingStatus()
+    {
+        if (!Connected)
+        {
+            return "Disconnected";
+        }
+        var timeSinceLastData = DateTime.UtcNow - lastMouthDataTime;
+        return timeSinceLastData.TotalSeconds < 1.0 ? "Active" : "Inactive";
+    }
+
+    private static int GetFrameRate()
+    {
+        if (!Connected)
+        {
+            return -1;
+        }
+
+        var now = DateTime.UtcNow;
+        var elapsed = now - lastFrameRateUpdate;
+
+        if (elapsed.TotalSeconds >= 1.0)
+        {
+            var eyeFps = eyeFrameCount / elapsed.TotalSeconds;
+            var mouthFps = mouthFrameCount / elapsed.TotalSeconds;
+
+            eyeFrameCount = 0;
+            mouthFrameCount = 0;
+            lastFrameRateUpdate = now;
+
+            // 目と口の最大フレームレートを返す
+            return (int)Math.Max(eyeFps, mouthFps);
+        }
+
+        return 0; // 計算中
+    }
+
     /// <inheritdoc />
     public void UpdateInputs(float deltaTime)
     {
-        if (!connected && _tracking)
+        if (!Connected && _tracking)
         {
             VS_PC_SDK.VS_StopFaceTracking();
             _tracking = false;
         }
 
-        if (connected && !_tracking && IsActive)
+        if (Connected && !_tracking && IsActive)
         {
             if (!VS_PC_SDK.VS_StartFaceTracking())
             {
@@ -174,7 +381,7 @@ public sealed class ViveStreamingFaceTrackingDriver : IInputDriver, IDisposable
             _tracking = true;
         }
 
-        if (connected && _tracking && !IsActive)
+        if (Connected && _tracking && !IsActive)
         {
             if (!VS_PC_SDK.VS_StopFaceTracking())
             {
@@ -184,13 +391,21 @@ public sealed class ViveStreamingFaceTrackingDriver : IInputDriver, IDisposable
             _tracking = false;
         }
 
-        if (!connected)
+        if (!Connected)
         {
             _tracking = false;
         }
 
-        eyes?.UpdateInputs(connected, ref eyeData, deltaTime);
-        mouth?.UpdateInputs(connected, ref lipData);
+        eyes?.UpdateInputs(Connected, ref eyeData, deltaTime);
+        mouth?.UpdateInputs(Connected, ref lipData);
+
+        // 定期的にステータスを更新（1秒間隔）
+        var now = DateTime.UtcNow;
+        if ((now - lastStatusUpdate).TotalSeconds >= 1.0)
+        {
+            NotifyStatusChanged();
+            lastStatusUpdate = now;
+        }
     }
 
     /// <inheritdoc />
