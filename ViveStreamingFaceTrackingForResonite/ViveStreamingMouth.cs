@@ -53,8 +53,7 @@ internal sealed class ViveStreamingMouth : Mouth
                 MouthParameterGroup.CheekPuffSuck,
             ]
         )
-    {
-    }
+    { }
 
     public void UpdateInputs(bool connected, ref string? newMouthData)
     {

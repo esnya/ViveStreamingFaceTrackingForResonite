@@ -20,9 +20,6 @@
   </ItemGroup>
   <!-- Project-specific references -->
   <ItemGroup>
-    <Reference Include="System.Memory">
-      <HintPath>$(ResoniteManagedPath)\System.Memory.dll</HintPath>
-      <Private>$(IsTestProject)</Private>
-    </Reference>
+    <!-- No explicit System.Memory reference needed on .NET 9 -->
   </ItemGroup>
 </Project>

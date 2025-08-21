@@ -16,7 +16,7 @@
   </PropertyGroup>
   <!-- Common Build Properties -->
   <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <Platforms>x64</Platforms>
@@ -70,7 +70,6 @@
   </PropertyGroup>
   <!-- Derived Resonite Paths -->
   <PropertyGroup>
-    <ResoniteManagedPath>$([System.IO.Path]::Combine('$(ResonitePath)', 'Resonite_Data', 'Managed'))</ResoniteManagedPath>
     <ResoniteModsPath>$([System.IO.Path]::Combine('$(ResonitePath)', 'rml_mods'))</ResoniteModsPath>
     <ResoniteHotReloadPath>$([System.IO.Path]::Combine('$(ResonitePath)', 'rml_mods', 'HotReloadMods'))</ResoniteHotReloadPath>
     <ResoniteLibsPath>$([System.IO.Path]::Combine('$(ResonitePath)', 'rml_libs'))</ResoniteLibsPath>
@@ -88,15 +87,15 @@
     </Reference>
     <!-- Core Resonite Engine References (Managed) -->
     <Reference Include="FrooxEngine">
-      <HintPath>$([System.IO.Path]::Combine('$(ResoniteManagedPath)', 'FrooxEngine.dll'))</HintPath>
+      <HintPath>$([System.IO.Path]::Combine('$(ResonitePath)', 'FrooxEngine.dll'))</HintPath>
       <Private>$(IsTestProject)</Private>
     </Reference>
     <Reference Include="Elements.Core">
-      <HintPath>$([System.IO.Path]::Combine('$(ResoniteManagedPath)', 'Elements.Core.dll'))</HintPath>
+      <HintPath>$([System.IO.Path]::Combine('$(ResonitePath)', 'Elements.Core.dll'))</HintPath>
       <Private>$(IsTestProject)</Private>
     </Reference>
     <Reference Include="Elements.Assets">
-      <HintPath>$([System.IO.Path]::Combine('$(ResoniteManagedPath)', 'Elements.Assets.dll'))</HintPath>
+      <HintPath>$([System.IO.Path]::Combine('$(ResonitePath)', 'Elements.Assets.dll'))</HintPath>
       <Private>$(IsTestProject)</Private>
     </Reference>
     <!-- System Packages - Aligned with FrooxEngine -->

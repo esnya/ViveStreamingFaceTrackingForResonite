@@ -63,7 +63,8 @@ public sealed class StatusChangedEventArgs : EventArgs
         string mouthTrackingStatus,
         int eyeDataCount,
         int mouthDataCount,
-        int frameRate)
+        int frameRate
+    )
     {
         ConnectionStatus = connectionStatus;
         HmdModel = hmdModel;
@@ -306,14 +307,18 @@ public sealed class ViveStreamingFaceTrackingDriver : IInputDriver, IDisposable
         var mouthTrackingStatus = GetMouthTrackingStatus();
         var frameRate = GetFrameRate();
 
-        StatusChanged?.Invoke(null, new StatusChangedEventArgs(
-            connectionStatus,
-            hmdModel,
-            eyeTrackingStatus,
-            mouthTrackingStatus,
-            eyeDataCount,
-            mouthDataCount,
-            frameRate));
+        StatusChanged?.Invoke(
+            null,
+            new StatusChangedEventArgs(
+                connectionStatus,
+                hmdModel,
+                eyeTrackingStatus,
+                mouthTrackingStatus,
+                eyeDataCount,
+                mouthDataCount,
+                frameRate
+            )
+        );
     }
 
     private static string GetEyeTrackingStatus()

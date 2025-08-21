@@ -155,7 +155,8 @@ public sealed class ViveStreamingFaceTrackingConfigManager
         ModConfigurationKey<string> mouthTrackingStatusKey,
         ModConfigurationKey<int> eyeDataCountKey,
         ModConfigurationKey<int> mouthDataCountKey,
-        ModConfigurationKey<int> frameRateKey)
+        ModConfigurationKey<int> frameRateKey
+    )
     {
         _config = config;
         _connectionStatusKey = connectionStatusKey;

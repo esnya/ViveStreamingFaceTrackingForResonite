@@ -18,24 +18,28 @@ public partial class ViveStreamingFaceTrackingMod : ResoniteMod
     private static Assembly ModAssembly => typeof(ViveStreamingFaceTrackingMod).Assembly;
 
     /// <inheritdoc />
-    public override string Name => ModAssembly.GetCustomAttribute<AssemblyTitleAttribute>().Title;
+    public override string Name =>
+        ModAssembly.GetCustomAttribute<AssemblyTitleAttribute>()?.Title
+        ?? nameof(ViveStreamingFaceTrackingMod);
 
     /// <inheritdoc />
     public override string Author =>
-        ModAssembly.GetCustomAttribute<AssemblyCompanyAttribute>().Company;
+        ModAssembly.GetCustomAttribute<AssemblyCompanyAttribute>()?.Company ?? "Unknown";
 
     /// <inheritdoc />
     public override string Version =>
         ModAssembly
             .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-            .InformationalVersion;
+            ?.InformationalVersion
+        ?? ModAssembly.GetName().Version?.ToString() ?? "0.0.0";
 
     /// <inheritdoc />
     public override string Link =>
         ModAssembly
             .GetCustomAttributes<AssemblyMetadataAttribute>()
-            .First(meta => meta.Key == "RepositoryUrl")
-            .Value;
+            .FirstOrDefault(meta => meta.Key == "RepositoryUrl")
+            ?.Value
+        ?? "";
 
     private static ModConfiguration? config;
     private static readonly ViveStreamingFaceTrackingDriver driver = new();
@@ -131,7 +135,7 @@ public partial class ViveStreamingFaceTrackingMod : ResoniteMod
             driver.IsActive = config?.GetValue(enabledkey) ?? true;
         };
 
-        if (config != null)
+        if (config is not null)
         {
             configManager = new ViveStreamingFaceTrackingConfigManager(
                 config,
