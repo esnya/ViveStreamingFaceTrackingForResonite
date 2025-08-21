@@ -12,7 +12,7 @@
     <Copyright>Copyright (c) 2025 $(Authors)</Copyright>
     <PackageTags>Resonite,Mod,ResoniteModLoader,Vive,FaceTracking</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <Version>0.1.2.0</Version>
+    <Version>1.0.0</Version>
   </PropertyGroup>
   <!-- Common Build Properties -->
   <PropertyGroup>
