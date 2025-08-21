@@ -15,7 +15,7 @@ on:
       - ci/*
 
 jobs:
-  csharpier:
+  dotnet-format:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,7 +23,5 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
-      - name: Restore tools
-        run: dotnet tool restore
-      - name: Run csharpier check
-        run: dotnet csharpier check .
+      - name: Verify no formatting changes
+        run: dotnet format --verify-no-changes

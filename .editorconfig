@@ -32,6 +32,7 @@ dotnet_analyzer_diagnostic.category-reliability.severity = warning
 dotnet_analyzer_diagnostic.category-security.severity = warning
 dotnet_analyzer_diagnostic.category-style.severity = warning
 dotnet_analyzer_diagnostic.category-usage.severity = warning
+dotnet_diagnostic.IDE0055.severity = warning
 
 # Project-specific rule overrides
 dotnet_diagnostic.CA1031.severity = none # Do not catch general exception types - MOD safety
