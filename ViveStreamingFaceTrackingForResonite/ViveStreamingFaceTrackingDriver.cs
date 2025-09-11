@@ -402,7 +402,7 @@ public sealed class ViveStreamingFaceTrackingDriver : IInputDriver, IDisposable
         }
 
         eyes?.UpdateInputs(Connected, ref eyeData, deltaTime);
-        mouth?.UpdateInputs(Connected, ref lipData);
+        mouth?.UpdateInputs(Connected, ref lipData, deltaTime);
 
         // 定期的にステータスを更新（1秒間隔）
         var now = DateTime.UtcNow;

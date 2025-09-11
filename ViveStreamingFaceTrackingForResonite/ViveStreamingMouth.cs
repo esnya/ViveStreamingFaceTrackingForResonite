@@ -34,6 +34,7 @@ internal sealed class ViveStreamingMouth : Mouth
     }
 
     private readonly MouthData mouthData = new();
+    private float _timeSinceLastValidMouthData = float.MaxValue;
 
     public ViveStreamingMouth(InputInterface input)
         : base(
@@ -55,16 +56,25 @@ internal sealed class ViveStreamingMouth : Mouth
         )
     { }
 
-    public void UpdateInputs(bool connected, ref string? newMouthData)
+    public void UpdateInputs(bool connected, ref string? newMouthData, float deltaTime)
     {
         IsDeviceActive = connected;
         IsTracking = connected && Input.VR_Active;
 
+        _timeSinceLastValidMouthData += deltaTime;
+
         if (newMouthData is null)
         {
+            // If no new data has arrived for a short period, mark as not tracking
+            if (_timeSinceLastValidMouthData > 0.2f)
+            {
+                IsTracking = false;
+            }
             return;
         }
 
+        _timeSinceLastValidMouthData = 0f;
+        IsTracking = connected && Input.VR_Active;
         mouthData.Update(newMouthData);
         newMouthData = null;
 
