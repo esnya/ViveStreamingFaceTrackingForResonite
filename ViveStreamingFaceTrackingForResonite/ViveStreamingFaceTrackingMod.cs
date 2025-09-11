@@ -44,12 +44,21 @@ public partial class ViveStreamingFaceTrackingMod : ResoniteMod
     private static ModConfiguration? config;
     private static readonly ViveStreamingFaceTrackingDriver driver = new();
     private static ViveStreamingFaceTrackingConfigManager? configManager;
+    private static bool _statusPreviewEnabled;
+    private static bool _statusSubscribed;
 
     [AutoRegisterConfigKey]
     private static readonly ModConfigurationKey<bool> enabledkey = new(
         "Enabled",
         "Enable Mod",
         () => true
+    );
+
+    [AutoRegisterConfigKey]
+    private static readonly ModConfigurationKey<bool> statusPreviewEnabledKey = new(
+        "StatusPreviewEnabled",
+        "Enable Status Preview (Tracker/Stats UI updates)",
+        () => false
     );
 
     [AutoRegisterConfigKey]
@@ -129,10 +138,17 @@ public partial class ViveStreamingFaceTrackingMod : ResoniteMod
         config = modInstance?.GetConfiguration();
 
         driver.IsActive = config?.GetValue(enabledkey) ?? true;
+        _statusPreviewEnabled = config?.GetValue(statusPreviewEnabledKey) ?? false;
 
         enabledkey.OnChanged += (_) =>
         {
             driver.IsActive = config?.GetValue(enabledkey) ?? true;
+        };
+
+        statusPreviewEnabledKey.OnChanged += (_) =>
+        {
+            _statusPreviewEnabled = config?.GetValue(statusPreviewEnabledKey) ?? false;
+            UpdateStatusPreviewSubscription(_statusPreviewEnabled);
         };
 
         if (config is not null)
@@ -148,7 +164,38 @@ public partial class ViveStreamingFaceTrackingMod : ResoniteMod
                 frameRateKey
             );
 
-            ViveStreamingFaceTrackingDriver.StatusChanged += OnStatusChanged;
+            UpdateStatusPreviewSubscription(_statusPreviewEnabled);
+        }
+    }
+
+    private static void UpdateStatusPreviewSubscription(bool enable)
+    {
+        if (enable)
+        {
+            if (!_statusSubscribed)
+            {
+                ViveStreamingFaceTrackingDriver.StatusChanged += OnStatusChanged;
+                _statusSubscribed = true;
+            }
+        }
+        else
+        {
+            if (_statusSubscribed)
+            {
+                ViveStreamingFaceTrackingDriver.StatusChanged -= OnStatusChanged;
+                _statusSubscribed = false;
+            }
+            // Reset preview values when disabled
+            if (configManager != null)
+            {
+                configManager.ConnectionStatus = "Disabled";
+                configManager.HmdModel = "Disabled";
+                configManager.EyeTrackingStatus = "Disabled";
+                configManager.MouthTrackingStatus = "Disabled";
+                configManager.EyeDataCount = 0;
+                configManager.MouthDataCount = 0;
+                configManager.FrameRate = -1;
+            }
         }
     }
 
