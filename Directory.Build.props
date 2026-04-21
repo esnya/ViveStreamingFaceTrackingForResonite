@@ -68,6 +68,10 @@
   <PropertyGroup>
     <ResonitePath>$([MSBuild]::EnsureTrailingSlash('$(ResonitePath)'))</ResonitePath>
   </PropertyGroup>
+  <PropertyGroup>
+    <FrooxEnginePresent Condition="Exists('$([System.IO.Path]::Combine($(ResonitePath), `FrooxEngine.dll`))')">true</FrooxEnginePresent>
+    <FrooxEnginePresent Condition="'$(FrooxEnginePresent)'==''">false</FrooxEnginePresent>
+  </PropertyGroup>
   <!-- Derived Resonite Paths -->
   <PropertyGroup>
     <ResoniteModsPath>$([System.IO.Path]::Combine('$(ResonitePath)', 'rml_mods'))</ResoniteModsPath>
@@ -75,7 +79,7 @@
     <ResoniteLibsPath>$([System.IO.Path]::Combine('$(ResonitePath)', 'rml_libs'))</ResoniteLibsPath>
   </PropertyGroup>
   <!-- Common Resonite References -->
-  <ItemGroup>
+  <ItemGroup Condition="'$(FrooxEnginePresent)'=='true'">
     <!-- Core Resonite Mod Dependencies -->
     <Reference Include="ResoniteModLoader">
       <HintPath>$([System.IO.Path]::Combine('$(ResonitePath)', 'Libraries', 'ResoniteModLoader.dll'))</HintPath>
@@ -102,6 +106,17 @@
     <!-- Debug-only references -->
     <Reference Include="ResoniteHotReloadLib" Condition="'$(Configuration)'=='Debug'">
       <HintPath>$([System.IO.Path]::Combine('$(ResoniteLibsPath)', 'ResoniteHotReloadLib.dll'))</HintPath>
+      <Private>$(IsTestProject)</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup Condition="'$(FrooxEnginePresent)'!='true'">
+    <PackageReference Include="Resonite.GameLibs" />
+    <Reference Include="ResoniteModLoader">
+      <HintPath>$([System.IO.Path]::Combine('$(ResonitePath)', 'Libraries', 'ResoniteModLoader.dll'))</HintPath>
+      <Private>$(IsTestProject)</Private>
+    </Reference>
+    <Reference Include="HarmonyLib">
+      <HintPath>$([System.IO.Path]::Combine('$(ResoniteLibsPath)', '0Harmony.dll'))</HintPath>
       <Private>$(IsTestProject)</Private>
     </Reference>
   </ItemGroup>
