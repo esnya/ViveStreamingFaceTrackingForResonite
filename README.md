@@ -7,9 +7,11 @@ Adding facial tracking to Resonite for HMD using Vive Hub such as Vive Focus 3, 
 ## Installation
 
 1. Install the [ResoniteModLoader](https://github.com/resonite-modding-group/ResoniteModLoader).
-2. Place the [ViveStreamingFaceTracking.dll](https://github.com/esnya/EsnyaResoniteModTemplate/releases/latest/download/ViveStreamingFaceTracking.dll) into your `rml_mods` folder. This folder should be located at `C:\Program Files (x86)\Steam\steamapps\common\Resonite\rml_mods` for a standard installation. You can create it if it's missing, or if you start the game once with the ResoniteModLoader installed, it will create this folder for you.
-3. Place 3 dlls from [ViveStreamingFaceTrackingModule/Libs](./ViveStreamingFaceTrackingModule/Libs) into your Resonite folder. This folder should be located at `C:\Program Files (x86)\Steam\steamapps\common\Resonite` for a standard installation.
+2. Place the [ViveStreamingFaceTracking.dll](https://github.com/esnya/ViveStreamingFaceTrackingForResonite/releases/latest/download/ViveStreamingFaceTracking.dll) into your `rml_mods` folder. This folder should be located at `C:\Program Files (x86)\Steam\steamapps\common\Resonite\rml_mods` for a standard installation. You can create it if it's missing, or if you start the game once with the ResoniteModLoader installed, it will create this folder for you.
+3. Download the latest [ViveStreamingFaceTrackingModule release](https://github.com/ViveSoftware/ViveStreamingFaceTrackingModule/releases/latest) and place the three DLLs from its `Libs` directory into your Resonite folder (normally `C:\Program Files (x86)\Steam\steamapps\common\Resonite`).
 4. Launch the game. If you want to check that the mod is working, you can check your Resonite logs.
+
+Version 1.1.0 is built against Resonite `2026.8.27.1094`.
 
 
 ## Development Requirements

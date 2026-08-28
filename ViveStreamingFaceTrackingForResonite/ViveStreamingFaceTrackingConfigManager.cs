@@ -16,89 +16,81 @@ public sealed class ViveStreamingFaceTrackingConfigManager
     private readonly ModConfigurationKey<int> _mouthDataCountKey;
     private readonly ModConfigurationKey<int> _frameRateKey;
 
-    private string _connectionStatus = "Disconnected";
-    private string _hmdModel = "Unknown";
-    private string _eyeTrackingStatus = "Disconnected";
-    private string _mouthTrackingStatus = "Disconnected";
-    private int _eyeDataCount;
-    private int _mouthDataCount;
-    private int _frameRate = -1;
-
     /// <summary>
     /// Gets or sets the connection status.
     /// </summary>
     public string ConnectionStatus
     {
-        get => _connectionStatus;
+        get;
         set
         {
-            if (_connectionStatus != value)
+            if (field != value)
             {
-                _connectionStatus = value;
+                field = value;
                 _config.Set(_connectionStatusKey, value);
             }
         }
-    }
+    } = "Disconnected";
 
     /// <summary>
     /// Gets or sets the HMD model name.
     /// </summary>
     public string HmdModel
     {
-        get => _hmdModel;
+        get;
         set
         {
-            if (_hmdModel != value)
+            if (field != value)
             {
-                _hmdModel = value;
+                field = value;
                 _config.Set(_hmdModelKey, value);
             }
         }
-    }
+    } = "Unknown";
 
     /// <summary>
     /// Gets or sets the eye tracking status.
     /// </summary>
     public string EyeTrackingStatus
     {
-        get => _eyeTrackingStatus;
+        get;
         set
         {
-            if (_eyeTrackingStatus != value)
+            if (field != value)
             {
-                _eyeTrackingStatus = value;
+                field = value;
                 _config.Set(_eyeTrackingStatusKey, value);
             }
         }
-    }
+    } = "Disconnected";
 
     /// <summary>
     /// Gets or sets the mouth tracking status.
     /// </summary>
     public string MouthTrackingStatus
     {
-        get => _mouthTrackingStatus;
+        get;
         set
         {
-            if (_mouthTrackingStatus != value)
+            if (field != value)
             {
-                _mouthTrackingStatus = value;
+                field = value;
                 _config.Set(_mouthTrackingStatusKey, value);
             }
         }
-    }
+    } = "Disconnected";
 
     /// <summary>
     /// Gets or sets the number of active eye data points.
     /// </summary>
     public int EyeDataCount
     {
-        get => _eyeDataCount;
+        get;
         set
         {
-            if (_eyeDataCount != value)
+            if (field != value)
             {
-                _eyeDataCount = value;
+                field = value;
                 _config.Set(_eyeDataCountKey, value);
             }
         }
@@ -109,12 +101,12 @@ public sealed class ViveStreamingFaceTrackingConfigManager
     /// </summary>
     public int MouthDataCount
     {
-        get => _mouthDataCount;
+        get;
         set
         {
-            if (_mouthDataCount != value)
+            if (field != value)
             {
-                _mouthDataCount = value;
+                field = value;
                 _config.Set(_mouthDataCountKey, value);
             }
         }
@@ -125,16 +117,16 @@ public sealed class ViveStreamingFaceTrackingConfigManager
     /// </summary>
     public int FrameRate
     {
-        get => _frameRate;
+        get;
         set
         {
-            if (_frameRate != value)
+            if (field != value)
             {
-                _frameRate = value;
+                field = value;
                 _config.Set(_frameRateKey, value);
             }
         }
-    }
+    } = -1;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ViveStreamingFaceTrackingConfigManager"/> class.
@@ -172,13 +164,12 @@ public sealed class ViveStreamingFaceTrackingConfigManager
 
     private void InitializeValues()
     {
-        // 初期値を設定（プロパティを使用して自動的にconfigに反映）
-        ConnectionStatus = _connectionStatus;
-        HmdModel = _hmdModel;
-        EyeTrackingStatus = _eyeTrackingStatus;
-        MouthTrackingStatus = _mouthTrackingStatus;
-        EyeDataCount = _eyeDataCount;
-        MouthDataCount = _mouthDataCount;
-        FrameRate = _frameRate;
+        _config.Set(_connectionStatusKey, ConnectionStatus);
+        _config.Set(_hmdModelKey, HmdModel);
+        _config.Set(_eyeTrackingStatusKey, EyeTrackingStatus);
+        _config.Set(_mouthTrackingStatusKey, MouthTrackingStatus);
+        _config.Set(_eyeDataCountKey, EyeDataCount);
+        _config.Set(_mouthDataCountKey, MouthDataCount);
+        _config.Set(_frameRateKey, FrameRate);
     }
 }
