@@ -29,6 +29,14 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
+      - name: Verify tag matches project version
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: |
+          set -euo pipefail
+          version=$(grep -o '<Version>[^<]*</Version>' Directory.Build.props | sed -e 's/<Version>//' -e 's/<\/Version>//')
+          test "v${version}" = "${{ github.ref_name }}"
+
       - name: Prepare fallback references
         shell: bash
         run: |
@@ -40,7 +48,7 @@ jobs:
             https://github.com/resonite-modding-group/ResoniteModLoader/releases/latest/download/0Harmony.dll
 
       - name: Restore
-        run: dotnet restore ./ViveStreamingFaceTrackingForResonite.sln -p:ResonitePath="${{ env.RESONITE_INSTALL_DIR }}/"
+        run: dotnet restore ./ViveStreamingFaceTrackingForResonite.sln --locked-mode -p:ResonitePath="${{ env.RESONITE_INSTALL_DIR }}/"
 
       - name: Build
         run: dotnet build ./ViveStreamingFaceTrackingForResonite.sln -c Release --no-restore -p:ResonitePath="${{ env.RESONITE_INSTALL_DIR }}/"

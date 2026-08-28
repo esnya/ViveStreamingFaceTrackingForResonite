@@ -18,8 +18,4 @@
     <Compile Include="..\ViveStreamingFaceTrackingModule\FaceData.cs" />
     <Compile Include="..\ViveStreamingFaceTrackingModule\VS_PC_SDK.cs" />
   </ItemGroup>
-  <!-- Project-specific references -->
-  <ItemGroup>
-    <!-- No explicit System.Memory reference needed on .NET 9 -->
-  </ItemGroup>
 </Project>

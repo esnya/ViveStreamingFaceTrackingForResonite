@@ -20,6 +20,6 @@
     <PackageVersion Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.0" />
     <PackageVersion Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.0" />
     <PackageVersion Include="System.Collections.Immutable" Version="9.0.0" />
-    <PackageVersion Include="Resonite.GameLibs" Version="2026.4.16.1327" />
+    <PackageVersion Include="Resonite.GameLibs" Version="2026.8.27.1094" />
   </ItemGroup>
 </Project>
